@@ -2,9 +2,8 @@
 # 1. Place the equipment schedule (tagging paired with the correct info) at
 #    the first sheet. The tagging must be in col A, and the FCU in col B.
 # 2. Place the reference FCU in sheet 2 onwards. Note the sheet index below.
-# 3. Place the FCU sheets to be filled up after the reference FCU
+# 3. Place the FCU sheets to be filled up after the reference FCU.
 
-from copy import copy
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 
