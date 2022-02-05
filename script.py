@@ -39,7 +39,7 @@ def copysheet(source, target, max_row, max_col):
 
 
 # create the tagging dict
-tag_ws = wb['Tagging']
+tag_ws = wb.worksheets[0]
 tag = {}
 for i in range(1, TAGGING_LAST_ROW + 1):
     tag[tag_ws['A' + str(i)].value] = tag_ws['B' + str(i)].value
