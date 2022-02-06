@@ -9,66 +9,92 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 
-DATA_MAX_ROW = 4
-DATA_MAX_COL = 2
-REF_SHEET_LAST_INDEX = 4
-TAGGING_LAST_ROW = 6
-SAMPLE_CELL = 'B2'
+filenames = ['tower', 'podium', 'basement']
 
-wb = load_workbook('filename.xlsx')
+def execute(filename):
 
-def printsheet(worksheet):
-    for row in range(1, DATA_MAX_ROW + 1):
-        for col in range(1, DATA_MAX_COL + 1):
-            char = get_column_letter(col)
-            print(worksheet[char + str(row)].value, end=" ")
-        print()
-        
-def printdata():
-    print(len(wb.worksheets))
+    DATA_MAX_ROW = 53
+    DATA_MAX_COL = 2
+    REF_SHEET_LAST_INDEX = 14
+    TAGGING_LAST_ROW = 541
+    DATA_COL = 'D'
+    SAMPLE_CELL = 'D10'
+    FILENAME = filename
+
+    wb = load_workbook(f'{FILENAME}.xlsx')
+
+    def printsheet(worksheet):
+        for row in range(1, DATA_MAX_ROW + 1):
+            for col in range(1, DATA_MAX_COL + 1):
+                char = get_column_letter(col)
+                print(worksheet[char + str(row)].value, end=" ")
+            print()
+            
+    def printdata():
+        print(len(wb.worksheets))
+        for i in range(REF_SHEET_LAST_INDEX, len(wb.worksheets)):
+            print(wb.worksheets[i].title, i)
+            printsheet(wb.worksheets[i])
+            print('-' * 50)
+
+    def copysheet(source, target, max_row, max_col):
+        for row in range(8, max_row + 1):
+            target[DATA_COL + str(row)] = source[DATA_COL + str(row)].value
+
+
+    def copycolumn(source, target, max_row):
+        '''source -> column, target -> worksheet'''
+        for cell in source:
+            row = str(cell.row)
+            col = str(get_column_letter(cell.column))
+            target[row + col] = cell.value
+
+
+    # create the tagging dict
+    tag_ws = wb.worksheets[0]
+    tag = {}
+    for i in range(1, TAGGING_LAST_ROW + 1):
+        tag[tag_ws['A' + str(i)].value] = tag_ws['B' + str(i)].value
+
+    # save the reference sheets
+    ref = {}
+    for i in range(1, REF_SHEET_LAST_INDEX):
+        ref[wb.worksheets[i].title] = wb.worksheets[i]
+
+
+    # save the reference columns
+    ref = {}
+    for i in range(1, REF_SHEET_LAST_INDEX):
+        ref[wb.worksheets[i].title] = wb.worksheets[i]
+
+
+    # excecute copy
     for i in range(REF_SHEET_LAST_INDEX, len(wb.worksheets)):
-        print(wb.worksheets[i].title, i)
-        printsheet(wb.worksheets[i])
-        print('-' * 50)
+        if wb.worksheets[i].title not in tag:
+            print(f'{wb.worksheets[i].title} not in ES')
+            continue
 
-def copysheet(source, target, max_row, max_col):
-    for row in range(1, max_row + 1):
-        for col in range(1, max_col + 1):
-            char = get_column_letter(col)
-            target[char + str(row)] = source[char + str(row)].value
+        data_title = tag[wb.worksheets[i].title]
+        source = ref[data_title]
+        copysheet(source, wb.worksheets[i], DATA_MAX_ROW, DATA_MAX_COL)
+
+    wb.save(f'{FILENAME + "1"}.xlsx')
+    print('done')
+
+    print(f'ERRORS IN {filename.upper()}')
+    # check if all worksheets are filled up
+    for i in range(REF_SHEET_LAST_INDEX, len(wb.worksheets)):
+        if wb.worksheets[i][SAMPLE_CELL] == None:
+            print(f'Worksheet {i + 1} - {wb.worksheets[i].title} did not fill up')
+
+    # check if the tagging is tally with the sheets
+    tag_qty = TAGGING_LAST_ROW - 1
+    sheets_qty = len(wb.worksheets) - REF_SHEET_LAST_INDEX
+    if tag_qty != sheets_qty:
+        print('Items do not tally')
+        print(f'No. of items in tagging sheet is {tag_qty}')
+        print(f'No. of items in sheets is {sheets_qty}')
 
 
-# create the tagging dict
-tag_ws = wb.worksheets[0]
-tag = {}
-for i in range(1, TAGGING_LAST_ROW + 1):
-    tag[tag_ws['A' + str(i)].value] = tag_ws['B' + str(i)].value
-
-
-# save the reference sheets
-ref = {}
-for i in range(1, REF_SHEET_LAST_INDEX):
-    ref[wb.worksheets[i].title] = wb.worksheets[i]
-
-
-# excecute copy
-for i in range(REF_SHEET_LAST_INDEX, len(wb.worksheets)):
-    data_title = tag[wb.worksheets[i].title]
-    source = ref[data_title]
-    copysheet(source, wb.worksheets[i], DATA_MAX_ROW, DATA_MAX_COL)
-
-wb.save('filename1.xlsx')
-print('done')
-
-# check if all worksheets are filled up
-for i in range(REF_SHEET_LAST_INDEX, len(wb.worksheets)):
-    if wb.worksheets[i][SAMPLE_CELL] == None:
-        print(f'Worksheet {i + 1} - {wb.worksheets[i].title} did not fill up')
-
-# check if the tagging is tally with the sheets
-tag_qty = TAGGING_LAST_ROW - 1
-sheets_qty = len(wb.worksheets) - REF_SHEET_LAST_INDEX
-if tag_qty != sheets_qty:
-    print('Items do not tally')
-    print(f'No. of items in tagging sheet is {tag_qty}')
-    print(f'No. of items in sheets is {sheets_qty}')
+for filename in filenames:
+    execute(filename)
