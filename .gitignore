@@ -1,4 +1,5 @@
 *.xlsx
-output/*.*
-raw_files/*.*
-esig/*.*
+output/*
+!output/
+raw_files/*
+esig/*
