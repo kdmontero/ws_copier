@@ -1,5 +1,5 @@
 *.xlsx
 output/*
-!output/
 raw_files/*
 esig/*
+!*/.gitkeep
