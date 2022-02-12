@@ -1,1 +1,4 @@
 *.xlsx
+output/*
+raw_files/*
+esig/*
