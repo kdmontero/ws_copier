@@ -8,12 +8,18 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.drawing.image import Image
 from openpyxl.worksheet.worksheet import Worksheet
 
+Cell = str
+FilePath = str
+
 def execute(filename: str) -> None:
     FCU_SHEET_LAST_INDEX = 14
 
     wb = load_workbook(f'raw_files/{filename}.xlsx')
 
-    def insertimage(image_loc: str, worksheet: Worksheet, cell: str) -> None:
+    def insertimage(
+            image_loc: FilePath, 
+            worksheet: Worksheet, 
+            cell: Cell) -> None:
         image = Image(image_loc)
         worksheet.add_image(image, cell)
 
