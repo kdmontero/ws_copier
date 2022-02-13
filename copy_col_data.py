@@ -11,7 +11,6 @@ Notes:
    in "output" directory.
 '''
 
-from __future__ import annotations
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.utils import get_column_letter
